@@ -1,5 +1,6 @@
 import threading
 import pathlib
+import os
 import cv2
 
 from ultralytics import YOLO
@@ -42,7 +43,7 @@ class TopologyData:
         self.import_the_image(imagePath, currentProjectPath)
 
         self.emit_status("Running Zones Detection...")
-        self.detect_zones("zones_detection_x.pt")
+        self.detect_zones("zones_detection.pt")
 
         self.emit_status("Detecting Links...")
         self.detect_links("links_detection.pt")
