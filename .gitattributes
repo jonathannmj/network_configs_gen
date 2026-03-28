@@ -1,4 +1,7 @@
 AI_models/equipments_detection.pt filter=lfs diff=lfs merge=lfs -text
 AI_models/zones_detection_x.pt filter=lfs diff=lfs merge=lfs -text
-AI_models/bert-finetuned/model.safetensors filter=lfs diff=lfs merge=lfs -text
 AI_models/detect_equipment.pt filter=lfs diff=lfs merge=lfs -text
+AI_models/zones_detection.pt filter=lfs diff=lfs merge=lfs -text
+AI_models/detect_equipment_type.pt filter=lfs diff=lfs merge=lfs -text
+AI_models/detect_zones.pt filter=lfs diff=lfs merge=lfs -text
+AI_models/links_detection.pt filter=lfs diff=lfs merge=lfs -text

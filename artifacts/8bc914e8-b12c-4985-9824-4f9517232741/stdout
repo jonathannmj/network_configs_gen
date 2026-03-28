@@ -1,0 +1,53 @@
+
+PLAY [PLAY 1 - GENERATE CONFIGURATIONS] ****************************************
+
+TASK [GENERATE CONFIGS FOR EACH EQUIPMENT] *************************************
+[1;35m[WARNING]: ansible-pylibssh not installed, falling back to paramiko[0m
+[1;35m[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.[0m
+[0;35m[DEPRECATION WARNING]: Importing 'to_bytes' from 'ansible.module_utils._text' is deprecated. This feature will be removed from ansible-core version 2.24. Use ansible.module_utils.common.text.converters instead.[0m
+[0;35m[DEPRECATION WARNING]: Importing 'to_text' from 'ansible.module_utils._text' is deprecated. This feature will be removed from ansible-core version 2.24. Use ansible.module_utils.common.text.converters instead.[0m
+[0;35m[DEPRECATION WARNING]: The `ansible.module_utils.common._collections_compat` module is deprecated. This feature will be removed from ansible-core version 2.24. Use `collections.abc` from the Python standard library instead.[0m
+[0;35m[DEPRECATION WARNING]: The paramiko connection plugin is deprecated. This feature will be removed from ansible-core version 2.21.[0m
+[0;31m[ERROR]: Task failed: object of type 'dict' has no attribute 'address'[0m
+[0;31m[0m
+[0;31mTask failed.[0m
+[0;31mOrigin: /home/jonathan/Documents/master2/memoire/source_code/ansible_files/playbook.yml:8:9[0m
+[0;31m[0m
+[0;31m6     tasks:[0m
+[0;31m7[0m
+[0;31m8       - name: GENERATE CONFIGS FOR EACH EQUIPMENT[0m
+[0;31m          ^ column 9[0m
+[0;31m[0m
+[0;31m<<< caused by >>>[0m
+[0;31m[0m
+[0;31mobject of type 'dict' has no attribute 'address'[0m
+[0;31mOrigin: /home/jonathan/Documents/master2/memoire/source_code/templates/equipments/pc.j2[0m
+[0;31m[0m
+[0;31mfatal: [Switch2]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+[0;31mfatal: [Ceo]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+[0;31mfatal: [Switch1]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+[0;31mfatal: [Switch5]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+[0;31mfatal: [Switch6]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+[0;31mfatal: [PC1]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+[0;31mfatal: [PC2]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+[0;31mfatal: [pc_12]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+[0;31mfatal: [PC6]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+[0;31mfatal: [R1]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+[0;33mchanged: [PC3][0m
+[0;33mchanged: [PC5][0m
+[0;31mfatal: [PC4]: FAILED! => {"changed": false, "msg": "Task failed: object of type 'dict' has no attribute 'address'"}[0m
+
+PLAY RECAP *********************************************************************
+[0;31mCeo[0m                        : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   
+[0;31mPC1[0m                        : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   
+[0;31mPC2[0m                        : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   
+[0;33mPC3[0m                        : [0;32mok=1   [0m [0;33mchanged=1   [0m unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+[0;31mPC4[0m                        : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   
+[0;33mPC5[0m                        : [0;32mok=1   [0m [0;33mchanged=1   [0m unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+[0;31mPC6[0m                        : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   
+[0;31mR1[0m                         : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   
+[0;31mSwitch1[0m                    : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   
+[0;31mSwitch2[0m                    : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   
+[0;31mSwitch5[0m                    : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   
+[0;31mSwitch6[0m                    : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   
+[0;31mpc_12[0m                      : ok=0    changed=0    unreachable=0    [0;31mfailed=1   [0m skipped=0    rescued=0    ignored=0   

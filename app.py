@@ -688,7 +688,7 @@ class ConfigsGenWorker(QObject):
 
         try:
             config_gen = Configurations(self.currentProjectPath, self.data)
-            config_gen.generate_configurations(status_callback=callback, progress_callback=progress_callback)
+            config_gen.generate_configurations(data=self.data, status_callback=callback, progress_callback=progress_callback)
             callback("Configurations generated.")
         except Exception as e:
             callback(f"Error: {e}")

@@ -1,4 +1,6 @@
 # Network configs Generator
+![Logo](./UI/images/net_configs_gen.png)    
+
 A configurations commands generator for network equipments. It takes as input, an image of a network architecture containing the important informations for each equipment:
 - hostnames,
 - ip addresses,

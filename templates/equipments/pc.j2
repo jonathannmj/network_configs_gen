@@ -1,10 +1,12 @@
+enable
+configure terminal
 hostname {{ inventory_hostname }}
 {% if interfaces is defined %}
 {% for interface in interfaces %}
 interface {{ interface.name }}
 {% if interface.address is defined %}
  ip address {{ interface.address }} {{ interface.netmask }}
-{% elif interface.ip is defined %}
+{% else %}
  ip address {{ interface.ip }}
 {% endif %}
  no shutdown

@@ -1,14 +1,10 @@
 import threading
 import pathlib
-import os
 import cv2
 
 from ultralytics import YOLO
 import easyocr
 from paddleocr import PaddleOCR
-import pytesseract
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 
 import sqlite3
 import re
@@ -43,13 +39,13 @@ class TopologyData:
         self.import_the_image(imagePath, currentProjectPath)
 
         self.emit_status("Running Zones Detection...")
-        self.detect_zones("zones_detection.pt")
+        self.detect_zones("detect_zones.pt")
 
         self.emit_status("Detecting Links...")
         self.detect_links("links_detection.pt")
 
         self.emit_status("Detecting Equipment Details...")
-        self.equipment_detection("detect_equipment.pt")
+        self.equipment_detection("detect_equipment_type.pt")
 
         self.emit_status("Running OCR on Equipment Zones...")
         self.OCR_on_detected_equipments_zones()
@@ -154,10 +150,12 @@ class TopologyData:
                         id = int(box.id[0].item())
                         self.detected_equipments_zones[id] = self.extract_zones_coordinates(box)
                     case 1:
+                        continue
+                    case 2:
                         # Class: 'extratext_zone'
                         id = int(box.id[0].item())
                         self.detected_extratext_zones[id] = self.extract_zones_coordinates(box)
-                    case 2:
+                    case 3:
                         # Class: 'linktext_zone'
                         id = int(box.id[0].item())
                         self.detected_linktext_zones[id] = self.extract_zones_coordinates(box)

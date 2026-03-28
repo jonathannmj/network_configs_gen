@@ -5,7 +5,6 @@ import glob
 import sys
 import ipaddress
 
-
 from termcolor import cprint
 
 class Configurations:
@@ -14,7 +13,7 @@ class Configurations:
         self.devices = []  # List of devices with their details
         self.projectFolder = projectFolder
         self.data = data
-        self.load_devices()
+        # self.load_devices()
 
     def load_devices(self):
         """Load devices from host_vars YAML files."""
@@ -49,11 +48,23 @@ class Configurations:
             except Exception as e:
                 print(f"Error loading {yaml_file}: {e}")
 
-    def generate_configurations(self, status_callback=None, progress_callback=None):
+    def generate_configurations(self, data, status_callback=None, progress_callback=None):
         """Generate configurations with Ansible"""
-        if not self.devices:
+
+        cprint("Data in the configurations generator", "green")
+        print(data)
+        cprint("Data in the configurations generator", "green")
+
+        devices = data['nodes']
+        cprint("Devices in the configurations generator", "green")
+        print(devices)
+        cprint("Devices in the configurations generator", "green")
+
+        if not devices:
             print("No devices to configure.")
             return
+
+        print("hey 1")
 
         # Locate ansible_files directory relative to the codebase root
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -70,7 +81,8 @@ class Configurations:
         os.makedirs(host_vars_dir, exist_ok=True)
         
         # Prepare group names
-        groups = set([f'{group_name["device_type"]}s' for group_name in self.devices])
+        print("hey 2")
+        groups = set([f'{group_name["device_type"]}s' for group_name in devices.values()])
         print(groups)
 
         # Inventory blue print
@@ -78,64 +90,131 @@ class Configurations:
         for group in groups:
             hosts[group] = []
 
-        for device in self.devices:
+        for device in devices.values():
+            print("hey 3")
+            print(device)
             hostname = device['hostname']
             device_type = device.get('device_type', 'ungrouped')
-            device_group = f'{device_type}s'
+            device_group = f'{device_type}s' if device_type != 'ungrouped' else 'ungrouped'
 
             if device_group in hosts.keys():
                 hosts[device_group].append(hostname)
+            else:
+                hosts['ungrouped'].append(hostname)
                 
             # Prepare host variables
-            host_vars = device['variables'].copy()
+            host_vars = {}
             host_vars['device_type'] = device_type
             host_vars['currentProjectPath'] = self.projectFolder
+            host_vars['interfaces'] = []
             
-            # Standardize 'interfaces' to be a list of dictionaries with 'name' attribute
-            # This ensures compatibility with all templates (router.j2, switch.j2, pc.j2)
-            if 'interfaces' in host_vars and isinstance(host_vars['interfaces'], dict):
+            # Save data by interfaces
+            if 'interfaces' in device.keys() and isinstance(device['interfaces'], dict):
+                cprint("hey 5", 'green')
                 interfaces_list = []
-                for if_name, if_data in host_vars['interfaces'].items():
-                    if isinstance(if_data, dict):
-                        # Create a new dict to avoid modifying the original reference if shared
-                        new_if_data = if_data.copy()
-                        new_if_data['name'] = if_name
-                        interfaces_list.append(new_if_data)
+                for if_name, if_data in device['interfaces'].items():
+                    cprint("hey 6", 'green')
+                    if isinstance(if_data, dict) and if_data.values() and if_data['ip']:
+                        cprint("hey 7", "green")
+                        if_data['name'] = if_name
+                        interfaces_list.append(if_data)
+                        
+                        try:
+                            cprint("hey 8", 'green')
+                            match device_type:
+                                case 'pc':
+                                    ip_cidr = if_data['ip'] else None
+                                    iface_obj = ipaddress.ip_address(ip_cidr)
+                                    host_vars['interfaces'].append({
+                                        'name': if_name if if_name else 'eth0',
+                                        'address': str(iface_obj.network_address),
+                                        'netmask': str(iface_obj.netmask),
+                                        'ip': ip_cidr # Keep raw cidr just in case
+                                    })
+                                case 'router':
+                                    ip_cidr = if_data['ip'] else None
+                                    if ip_cidr:
+                                        iface_obj = ipaddress.ip_address(ip_cidr)
+                                        host_vars['interfaces'].append({
+                                            'name': if_name,
+                                            'address': str(iface_obj.network_address),
+                                            'netmask': str(iface_obj.netmask),
+                                            'ip': ip_cidr # Keep raw cidr just in case
+                                        })
+                                    else:
+                                        host_vars['interfaces'].append({
+                                            'name': if_name,
+                                        })
+                                case 'switch':
+                                    host_vars['interfaces'].append({
+                                        'name': if_name,
+                                        'port_mode': if_data['portMode'],
+                                        'vlan': if_data['vlan']
+                                    })
+                        except ValueError as e:
+                            print(f"Error parsing IP for {hostname}: {e}")
+                            host_vars['interfaces'].append({
+                                'name': 'eth0',
+                                'ip': ip_cidr
+                            })
                     else:
                         # Handle case where val might not be dict (unlikely based on topology_data)
                         interfaces_list.append({'name': if_name})
-                host_vars['interfaces'] = interfaces_list
-            elif 'interfaces' not in host_vars:
+                
+                cprint("hey 9", 'green')
+                # host_vars['interfaces'] = interfaces_list
+            else:
                 host_vars['interfaces'] = []
 
-            # Special handling for PCs: ensure robust IP handling
-            if device_type == 'pc':
-                # If we have legacy 'ip' at root, ensure it's in an interface
-                ip_cidr = host_vars.get('ip')
+            cprint("hey 4")
+
+            ip_cidr = host_vars.get('ip')
+            try:
+                iface_obj = ipaddress.ip_interface(ip_cidr)
+                host_vars['interfaces'].append({
+                    'name': 'eth0',
+                    'address': str(iface_obj.network_address),
+                    'netmask': str(iface_obj.netmask),
+                    'ip': ip_cidr # Keep raw cidr just in case
+                })
+            except ValueError as e:
+                print(f"Error parsing IP for {hostname}: {e}")
+                host_vars['interfaces'].append({
+                    'name': 'eth0',
+                    'ip': ip_cidr
+                })
+
+            cprint("Host vars", 'yellow')
+            print(host_vars)
+
+            # # Special handling for PCs: ensure robust IP handling
+            # if device_type == 'pc':
+            #     # If we have legacy 'ip' at root, ensure it's in an interface
+            #     ip_cidr = host_vars.get('ip')
                 
-                # Check if we already have an interface with IP
-                has_ip_interface = False
-                for iface in host_vars['interfaces']:
-                    if 'ip' in iface or 'address' in iface:
-                        has_ip_interface = True
-                        break
+            #     # Check if we already have an interface with IP
+            #     has_ip_interface = False
+            #     for iface, iface_data in host_vars['interfaces'].items():
+            #         if 'ip' in iface_data:
+            #             has_ip_interface = True
+            #             break
                 
-                if not has_ip_interface and ip_cidr:
-                    # Create default eth0 interface
-                    try:
-                        iface_obj = ipaddress.ip_interface(ip_cidr)
-                        host_vars['interfaces'].append({
-                            'name': 'eth0',
-                            'address': str(iface_obj.ip),
-                            'netmask': str(iface_obj.netmask),
-                            'ip': ip_cidr # Keep raw cidr just in case
-                        })
-                    except ValueError as e:
-                        print(f"Error parsing IP for {hostname}: {e}")
-                        host_vars['interfaces'].append({
-                            'name': 'eth0',
-                            'ip': ip_cidr
-                        })
+            #     if not has_ip_interface and ip_cidr:
+            #         # Create default eth0 interface
+            #         try:
+            #             iface_obj = ipaddress.ip_interface(ip_cidr)
+            #             host_vars['interfaces'].append({
+            #                 'name': 'eth0',
+            #                 'address': str(iface_obj.network_address),
+            #                 'netmask': str(iface_obj.netmask),
+            #                 'ip': ip_cidr # Keep raw cidr just in case
+            #             })
+            #         except ValueError as e:
+            #             print(f"Error parsing IP for {hostname}: {e}")
+            #             host_vars['interfaces'].append({
+            #                 'name': 'eth0',
+            #                 'ip': ip_cidr
+            #             })
             
             # Write host_vars to file
             host_var_path = os.path.join(host_vars_dir, f"{hostname}.yml")
